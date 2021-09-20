@@ -1,0 +1,96 @@
+CREATE TABLE IF NOT EXISTS PAYMENTS (
+	payments_order_id SERIAL NOT NULL PRIMARY KEY,
+	payment_id INTEGER,
+	payment_amount NUMERIC(10,2),
+	payment_fee NUMERIC (10,2),
+	payment_method VARCHAR(40),
+	payment_status VARCHAR(40)
+);
+
+
+CREATE TABLE IF NOT EXISTS HUBS (
+	hub_id SERIAL NOT NULL PRIMARY KEY,
+	hub_name VARCHAR(40),
+	hub_city VARCHAR(40),
+	hub_state VARCHAR(2),
+	hub_latitute FLOAT,
+	hub_longitude FLOAT
+);
+
+CREATE TABLE IF NOT EXISTS STORES (
+	store_id SERIAL NOT NULL,
+	hub_id INTEGER,
+	store_name VARCHAR(40),
+	store_segment VARCHAR(20),
+	store_plan_price FLOAT,
+	store_latitude FLOAT,
+	store_longitude FLOAT,
+	PRIMARY KEY (store_id),
+	FOREIGN KEY (hub_id) REFERENCES HUBS (hub_id)
+
+);
+
+
+CREATE TABLE IF NOT EXISTS DRIVERS(
+	driver_id SERIAL NOT NULL PRIMARY KEY,
+	driver_modal VARCHAR(20),
+	driver_type VARCHAR(40)
+);
+
+CREATE TABLE IF NOT EXISTS DELIVERIES(
+	delivery_order_id SERIAL NOT NULL,
+	driver_id INTEGER,
+	delivery_id FLOAT,
+	delivery_distance_meters FLOAT,
+	delivery_status VARCHAR(20),
+	PRIMARY KEY (delivery_order_id),
+	FOREIGN KEY (driver_id) REFERENCES DRIVERS (driver_id)
+);
+drop table deliveries;
+
+
+CREATE TABLE IF NOT EXISTS CHANNELS(
+	channel_id SERIAL NOT NULL PRIMARY KEY,
+	channel_name VARCHAR(40),
+	channel_type VARCHAR(20)
+);
+
+CREATE TABLE IF NOT EXISTS ORDERS(
+	payments_order_id INTEGER NOT NULL,
+	delivery_order_id INTEGER NOT NULL,
+	store_id INTEGER NOT NULL,
+	channel_id INTEGER NOT NULL,
+	order_id INTEGER NOT NULL,
+	order_status VARCHAR(20),
+	order_amount NUMERIC(10,2),
+	order_delivery_fee FLOAT,
+	order_delivery_cost NUMERIC(10,2),
+	order_created_hour INTEGER,
+	order_created_minute INTEGER,
+	order_created_day INTEGER,
+	order_created_month INTEGER,
+	order_created_year INTEGER,
+	order_moment_created VARCHAR(30) DEFAULT TO_CHAR(CURRENT_TIMESTAMP, 'yyyy-mm-dd hh:mi:ss AM'),
+	order_moment_accepted VARCHAR(30) DEFAULT TO_CHAR(CURRENT_TIMESTAMP, 'yyyy-mm-dd hh:mi:ss AM'),
+	order_moment_ready VARCHAR(30) DEFAULT TO_CHAR(CURRENT_TIMESTAMP, 'yyyy-mm-dd hh:mi:ss AM'),
+	order_moment_collected VARCHAR(30) DEFAULT TO_CHAR(CURRENT_TIMESTAMP, 'yyyy-mm-dd hh:mi:ss AM'),
+	order_moment_in_expedition VARCHAR(30) DEFAULT TO_CHAR(CURRENT_TIMESTAMP, 'yyyy-mm-dd hh:mi:ss AM'),
+	order_moment_delivering VARCHAR(30) DEFAULT TO_CHAR(CURRENT_TIMESTAMP, 'yyyy-mm-dd hh:mi:ss AM'),
+	order_moment_delivered VARCHAR(30) DEFAULT TO_CHAR(CURRENT_TIMESTAMP, 'yyyy-mm-dd hh:mi:ss AM'),
+	order_moment_finished VARCHAR(30) DEFAULT TO_CHAR(CURRENT_TIMESTAMP, 'yyyy-mm-dd hh:mi:ss AM'),
+	order_metric_collected_time FLOAT,
+	order_metric_paused_time FLOAT,
+	order_metric_production_time FLOAT,
+	order_metric_walking_time FLOAT,
+	order_metric_expedition_speed_time FLOAT,
+	order_metric_transit_time FLOAT,
+	order_metric_cycle_time FLOAT,
+	PRIMARY KEY (order_id, store_id, channel_id, payments_order_id, delivery_order_id),
+	FOREIGN KEY (store_id) REFERENCES stores (store_id),
+	FOREIGN KEY (channel_id) REFERENCES channels (channel_id),
+	FOREIGN KEY (payments_order_id) REFERENCES payments (payments_order_id),
+	FOREIGN KEY (delivery_order_id) REFERENCES deliveries (delivery_order_id)
+	
+);
+
+
